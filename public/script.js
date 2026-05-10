@@ -21,6 +21,30 @@ themeToggle.addEventListener('click', () => {
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
 });
 
+// --- Double Enter to Send & Auto-resize Logic ---
+let lastEnterTime = 0;
+
+userInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        const now = Date.now();
+        // If pressed twice within 500ms
+        if (now - lastEnterTime < 500) {
+            e.preventDefault();
+            // Trigger form submission
+            chatForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+            lastEnterTime = 0;
+        } else {
+            lastEnterTime = now;
+            // Allow default (newline)
+        }
+    }
+});
+
+userInput.addEventListener('input', () => {
+    userInput.style.height = 'auto';
+    userInput.style.height = (userInput.scrollHeight) + 'px';
+});
+
 // --- Chat Logic ---
 chatForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -33,6 +57,7 @@ chatForm.addEventListener('submit', async (e) => {
     
     // Clear input and disable UI while waiting for the AI
     userInput.value = '';
+    userInput.style.height = 'auto'; // Reset textarea height
     userInput.disabled = true;
     const submitBtn = chatForm.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
